@@ -1,0 +1,40 @@
+import random
+import asyncio
+import time
+
+semaphore = asyncio.Semaphore(3)
+progress ={}
+
+async def download(user_id):
+    async with semaphore:
+        print(f"{user_id} is downloading")
+        download_time = random.randint(1,10)
+        result = random.randint(0,1)
+        for time_needed in range(download_time):
+            await asyncio.sleep(1)
+            print(f"{user_id} is downloading....{time_needed+1}/{download_time}")
+        if result ==0:
+            print(f"{user_id} success download")
+            progress[user_id]="Success"
+        else:
+            print(f"{user_id} unsuccess")
+            progress[user_id] = "Unsuccess"
+
+async def main():
+    start = time.time()
+    tasks = [asyncio.create_task(download(i))for i in range (10)]
+    await asyncio.gather(*tasks)
+    end = time.time()
+    print(f"The time used is {end-start}second")
+    lista=[]
+    listb = []
+    for item in progress:
+        if progress[item] == "Success":
+            lista.append(item)
+        if progress[item]=="Unsuccess":
+            listb.append(item)
+    print(f"Success is {lista}")
+    print(f"Unsuccess is {listb}")
+
+
+asyncio.run(main())
